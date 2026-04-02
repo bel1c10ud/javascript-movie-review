@@ -183,7 +183,7 @@ function updateEmptyListAlert() {
       "afterend",
       `
         <div class="empty-list-alert">
-          <img src="/svg/planet.svg" alt="행성이" />
+          <img src="${"/javascript-movie-review/"}svg/planet.svg" alt="행성이" />
           <p class="empty-list-message">검색 결과가 없습니다.</p>
         </div>
       `
