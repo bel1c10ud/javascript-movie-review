@@ -39,10 +39,18 @@ function getPramFromURL(name, defaultValue) {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get(name) ?? defaultValue;
 }
+function getQuery() {
+  return getPramFromURL("query", "");
+}
 function getPage() {
   const pageStr = getPramFromURL("page", "1");
   const page = isNaN(Number(pageStr)) ? 1 : Number(pageStr);
   return Math.max(1, page);
+}
+function setQuery(query) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("query", query);
+  window.history.replaceState({}, "", url);
 }
 function setPage(page) {
   const url = new URL(window.location.href);
@@ -90,6 +98,12 @@ async function fetchPopularMoviesByPageRange(startPage, endPage) {
       if (index !== 0) await delay(index * 200);
       return fetchMovies("/movie/popular", { page: startPage + index + 1 });
     }
+  );
+  return Promise.all(promises);
+}
+async function fetchSearchMoviesByPageRange(startPage, endPage, query) {
+  const promises = Array.from({ length: endPage - startPage }).map(
+    (_, index) => fetchMovies("/search/movie", { query, page: startPage + index + 1 })
   );
   return Promise.all(promises);
 }
@@ -161,6 +175,23 @@ function renderMovies(movieList) {
     movieList.map((movie) => createMovieItemTemplate(movie)).join("")
   );
 }
+function updateEmptyListAlert() {
+  const listEl = document.querySelector(".thumbnail-list");
+  if (!listEl) return;
+  if (listEl.children.length === 0) {
+    listEl.insertAdjacentHTML(
+      "afterend",
+      `
+        <div class="empty-list-alert">
+          <img src="/svg/planet.svg" alt="행성이" />
+          <p class="empty-list-message">검색 결과가 없습니다.</p>
+        </div>
+      `
+    );
+  } else {
+    document.querySelector(".empty-list-alert")?.remove();
+  }
+}
 function renderShowMoreButton(prevResponseList, page, callback) {
   if (prevResponseList.length && prevResponseList[prevResponseList.length - 1].total_pages > page) {
     if (!document.querySelector(".show-more-button")) {
@@ -172,6 +203,12 @@ function renderShowMoreButton(prevResponseList, page, callback) {
     }
   } else {
     document.querySelector(".show-more-button")?.remove();
+  }
+}
+function renderListTitle(query) {
+  const listTitleEl = document.querySelector(".list-title");
+  if (listTitleEl) {
+    listTitleEl.textContent = `"${query}" 검색 결과`;
   }
 }
 function removeSkeletonItem() {
@@ -213,33 +250,19 @@ function showErrorToast({ title, message }) {
     if (toast.isConnected) removeToast(toast);
   }, TOAST_DURATION_MS);
 }
-addEventListener("load", async () => {
-  let prevResponseList = [];
-  try {
-    async function renderPopularMoviePage(page) {
-      setPage(page);
-      renderSkeletonItems(20);
-      const responseList = await fetchPopularMoviesByPageRange(
-        prevResponseList.length,
-        page
-      );
-      removeSkeletonItem();
-      prevResponseList.push(...responseList);
-      const movieList = responseList.reduce((arr, response) => {
-        return [...arr, ...response.results];
-      }, []);
-      renderMovies(movieList);
-      renderShowMoreButton(prevResponseList, page, () => {
-        renderPopularMoviePage(getPage() + 1);
-      });
-    }
-    await renderPopularMoviePage(getPage());
-    if (prevResponseList.length && prevResponseList[0].results.length) {
-      renderTopRatedMovie(prevResponseList[0].results[0]);
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      showErrorToast({ title: error.name, message: error.message });
-    }
-  }
-});
+export {
+  removeSkeletonItem as a,
+  renderMovies as b,
+  renderShowMoreButton as c,
+  renderTopRatedMovie as d,
+  showErrorToast as e,
+  fetchPopularMoviesByPageRange as f,
+  getPage as g,
+  setQuery as h,
+  renderListTitle as i,
+  fetchSearchMoviesByPageRange as j,
+  getQuery as k,
+  renderSkeletonItems as r,
+  setPage as s,
+  updateEmptyListAlert as u
+};
