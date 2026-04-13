@@ -1,4 +1,4 @@
-import { b as bindClickMovieEvent, r as renderSkeletonItems, f as fetchMovies, a as removeSkeletonItems, c as renderMovieItems, d as restoreScrollPosition, e as bindTopInfiniteScrollObserver, g as bindBottomInfiniteScrollObserver, h as handleError, i as getPage } from "./restoreScrollPosition-C0W-RRy1.js";
+import { b as bindClickMovieEvent, r as renderSkeletonItems, f as fetchMovies, a as removeSkeletonItems, c as renderMovieItems, d as restoreScrollPosition, e as bindTopInfiniteScrollObserver, g as bindBottomInfiniteScrollObserver, h as handleError, i as getPage } from "./restoreScrollPosition-R0PUTW3G.js";
 function renderTopRatedMovie(movie) {
   const containerEl = document.querySelector(".top-rated-movie");
   const rateEl = document.querySelector(".top-rated-movie .rate-value");
